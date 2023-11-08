@@ -1,6 +1,4 @@
-import { time } from 'console';
 import mongoose from 'mongoose';
-import { timestamp } from 'rxjs';
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -25,7 +23,11 @@ const userSchema = new mongoose.Schema({
     minlength: 8,
     maxlength: 64,
     trim: true
-  }
+  },
+  avatar: {
+    type: String,
+    default: '../assets/blank-profile-picture.png',
+  },
 }, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);
