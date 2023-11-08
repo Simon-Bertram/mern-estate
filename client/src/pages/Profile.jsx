@@ -1,7 +1,95 @@
+import { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { Link } from 'react-router-dom'
+
+
 const Profile = () => {
+  const { currentUser, loading, error } = useSelector((state) => state.user);
+  const [formData, setFormData] = useState({});
+  const dispatch = useDispatch();
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  };
+
+  const handlesubmit = (e) => {
+    e.preventDefault()
+    console.log('submit')
+  };
+
+  const handleDeleteuser = async () => {
+    try {
+      res = await fetch(`/api/users/delete/${currentUser._id}`, {
+        method: 'DELETE',
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      console.log('signout');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
   return ( 
     <div>
-      Profile
+      <h1 className='text-3xl font-semibold text-center my-7'>Profile</h1>
+      <form 
+        onSubmit={handlesubmit}
+        className='flex flex-col gap-4'
+      >
+        <input type="text" />
+        <img 
+          src={FormData.avatar || currentUser.avatar} 
+          alt="profile picture" 
+          className="w-24 h-24 rounded-full object-cover cursor-pointer self-center mt-2"
+        />
+        <input 
+          type="text" 
+          placeholder='username'
+          defaultValue={currentUser.username}
+          id='username'
+          className='border p-3 rounded-lg'
+          onClick={handleChange}
+        />
+        <input 
+          type="email" 
+          placeholder='email'
+          defaultValue={currentUser.email}
+          className='border p-3 rounded-lg'
+          onChange={handleChange}
+        />
+        <input 
+          type="password" 
+          placeholder='password'
+          className='border p-3 rounded-lg'
+          onChange={handleChange}
+        />
+        <button>
+          {loading ? 'Loading...' : 'Update'}
+        </button>
+        <Link 
+          to={'/create-listing'}
+          className='bg-green-700 text-white p-3 rounded-lg uppercase text-center hover:opacity-95'
+        >
+          Create Listing
+        </Link>
+      </form>
+      <div>
+        <span>
+          <button
+            onClick={handleDeleteuser}
+            className='bg-red-700 text-white p-3 rounded-lg uppercase text-center hover:opacity-95'
+          >
+            Delete Account
+          </button>
+        </span>
+      </div>
     </div>
    );
 }

@@ -47,3 +47,52 @@ export const login = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Google login
+// @route   POST /api/auth/google
+// @access  Public
+export const googleLogin = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    if (user) {
+      // Generate a JSON Web Token (JWT) for the user
+      const token = jwt.sign({id: user._id}, process.env.JWT_SECRET);
+      // Remove the password from the user object
+      const {password: pass, ...rest} = user._doc;
+      // Set a cookie in the user's browser with the JWT and return the user object
+      res
+        .cookie('access_token', token, {httpOnly: true})
+        .status(200)
+        .json(rest);
+    } else {
+      // If the user doesn't exist, generate a random password for the user (because the password is a required field in the User model)
+      const generatedPassword = 
+        Math.random().toString(36).slice(-8) + 
+        Math.random().toString(36).slice(-8);
+      const hashedPassword = bcrypt.hashSync(generatedPassword, 12);
+
+      // Create a new user with the generated (hashed) password 
+      const newUser = new User({
+        username: req.body.name
+          .split(' ')
+          .join('')
+          .toLowerCase() + Math.random().toString(36).slice(-6),
+        email: req.body.email,
+        hashedPassword,
+        avatar: req.body.photo,
+      });
+      await newUser.save();
+
+      // Set a cookie in the user's browser with the JWT and return the user object
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      // Remove the password from the user object
+      const {password: pass, ...rest} = user._doc;
+      res
+        .cookie('access_token', token, {httpOnly: true})
+        .status(200)
+        .json(rest);
+    }
+  } catch (error) {
+    next(error)
+  }
+};
