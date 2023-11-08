@@ -76,7 +76,7 @@ export const googleLogin = async (req, res, next) => {
         username: req.body.name
           .split(' ')
           .join('')
-          .toLowerCase() + Math.random().toString(36).slice(-6),
+          .toLowerCase() + '#' + Math.random().toString(36).slice(-6),
         email: req.body.email,
         hashedPassword,
         avatar: req.body.photo,

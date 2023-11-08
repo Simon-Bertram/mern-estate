@@ -37,7 +37,7 @@ const Profile = () => {
 
 
   return ( 
-    <div>
+    <div className='max-w-lg mx-auto'>
       <h1 className='text-3xl font-semibold text-center my-7'>Profile</h1>
       <form 
         onSubmit={handlesubmit}
@@ -61,33 +61,39 @@ const Profile = () => {
           type="email" 
           placeholder='email'
           defaultValue={currentUser.email}
+          id='email'
           className='border p-3 rounded-lg'
           onChange={handleChange}
         />
         <input 
           type="password" 
           placeholder='password'
+          id='password'
           className='border p-3 rounded-lg'
           onChange={handleChange}
         />
-        <button>
+        <button className='bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-90 disabled:opacity-80'>
           {loading ? 'Loading...' : 'Update'}
         </button>
         <Link 
           to={'/create-listing'}
-          className='bg-green-700 text-white p-3 rounded-lg uppercase text-center hover:opacity-95'
+          className='bg-green-700 text-white p-3 rounded-lg uppercase text-center hover:opacity-90'
         >
           Create Listing
         </Link>
       </form>
-      <div>
-        <span>
-          <button
-            onClick={handleDeleteuser}
-            className='bg-red-700 text-white p-3 rounded-lg uppercase text-center hover:opacity-95'
-          >
+      <div className='flex justify-between mt-5'>
+        <span
+          onClick={handleDeleteuser}
+          className='text-red-700 p-3 rounded-lg cursor-pointer uppercase text-center hover:opacity-90 hover:border hover:border-red-700'
+        >
             Delete Account
-          </button>
+        </span>
+        <span
+          onClick={handleDeleteuser}
+          className='text-red-700 p-3 rounded-lg cursor-pointer uppercase text-center hover:border hover:border-red-700'
+        >
+            Sign Out
         </span>
       </div>
     </div>
