@@ -39,7 +39,7 @@ const Header = () => {
                 Sign Up
               </li>
             </Link>
-            <Link to="/profile">
+            <Link to="/profile" className="flex items-center">
             {currentUser ? (
               <img 
                 src={currentUser.avatar} 

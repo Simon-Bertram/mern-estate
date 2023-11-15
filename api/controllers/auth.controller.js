@@ -38,6 +38,7 @@ export const login = async (req, res, next) => {
       expires: new Date(Date.now() + 1 * 60 * 60 * 1000),
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      samesite: 'lax',
     }
     res
       .cookie('access_token', token, cookieOptions)
@@ -71,12 +72,15 @@ export const googleLogin = async (req, res, next) => {
         Math.random().toString(36).slice(-8);
       const hashedPassword = bcrypt.hashSync(generatedPassword, 12);
 
+      const username = req.body.name
+        .split(' ')
+        .join('')
+        .toLowerCase() + '#' + Math.random().toString(36).slice(-6);
+        console.log(username);
+
       // Create a new user with the generated (hashed) password 
       const newUser = new User({
-        username: req.body.name
-          .split(' ')
-          .join('')
-          .toLowerCase() + '#' + Math.random().toString(36).slice(-6),
+        username,
         email: req.body.email,
         hashedPassword,
         avatar: req.body.photo,
