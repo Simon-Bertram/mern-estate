@@ -1,5 +1,5 @@
 import User from '../models/user.model.js';
-import bcrypt from 'bcryptjs';
+import bcryptjs from 'bcryptjs';
 import { errorHandler } from '../utils/error.js';
 import jwt from 'jsonwebtoken';
 
@@ -29,7 +29,7 @@ export const login = async (req, res, next) => {
     if (!validUser) {
       return next(errorHandler(401, 'Invalid email or password'));
     }
-    const validPassword = bcrypt.compareSync(password, validUser.hashedPassword);
+    const validPassword = bcryptjs.compareSync(password, validUser.hashedPassword);
     if (!validPassword) {
       return next(errorHandler(401, 'Invalid email or password'));
     }
@@ -40,9 +40,10 @@ export const login = async (req, res, next) => {
       secure: process.env.NODE_ENV === 'production',
       samesite: 'lax',
     }
+    const {password: pass, ...rest} = validUser._doc;
     res
       .cookie('access_token', token, cookieOptions)
-      .json('Login successful!');
+      .json(rest);
 
   } catch (error) {
     next(error);
