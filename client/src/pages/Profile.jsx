@@ -8,6 +8,14 @@ import {
   uploadBytesResumable 
 } from 'firebase/storage'
 import { app } from '../firebase'
+import { 
+  updateUserStart, 
+  updateUserSuccess,
+  updateUserFailure,
+  deleteUserStart,
+  deleteUserSuccess,
+  deleteUserFailure,
+} from '../redux/user/userSlice.js'
 
 const Profile = () => {
   const { currentUser, loading, error } = useSelector((state) => state.user);
@@ -66,11 +74,18 @@ const Profile = () => {
 
   const handleDeleteuser = async () => {
     try {
+      dispatch(deleteUserStart());
       res = await fetch(`/api/users/delete/${currentUser._id}`, {
         method: 'DELETE',
       });
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+      dispatch(deleteUserSuccess(data));
     } catch (error) {
-      console.log(error);
+      dispatch(deleteUserFailure(error.message));
     }
   };
 
@@ -160,6 +175,7 @@ const Profile = () => {
         >
             Delete Account
         </span>
+        <p className='text-green-700 mt-5'>{updateUserSuccess ? 'User is updated successfully!' : ""}</p>
         <span
           onClick={handleDeleteuser}
           className='text-red-700 p-3 rounded-lg cursor-pointer uppercase text-center hover:border hover:border-red-700'
