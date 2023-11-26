@@ -22,9 +22,10 @@ const Profile = () => {
   const [formData, setFormData] = useState({});
   const [file, setFile] = useState(undefined);
   const [filePercentage, setFilePercentage] = useState(0);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
   const [fileUploadError, setFileUploadError] = useState(false);
   const dispatch = useDispatch();
-  const fileRef = useRef();
+  const fileRef = useRef(null);
 
   useEffect(() => {
     if (file) {
@@ -35,20 +36,26 @@ const Profile = () => {
   const handleFileUpload = (file) => {
     const storage = getStorage(app);
     const fileName = new Date().getTime() + file.name;
+    console.log(fileName);
     const storageRef = ref(storage, fileName);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
-    uploadTask.on('state_changed', (snapshot) => {
-      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      setFilePercentage(Math.round(progress));
-      },
-      (error) => {
-        setFileUploadError(true);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          setFormData({ ...formData, avatar: downloadURL });
-        });
+    uploadTask.on(
+      'state_changed', 
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setFilePercentage(Math.round(progress));
+        },
+        (error) => {
+          setFileUploadError(true);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref)
+            .then((downloadURL) => {
+              console.log('File available at', downloadURL);
+              setFormData({ ...formData, avatar: downloadURL });
+              console.log(formData.avatar);
+            });
       }
     );
   };
@@ -60,22 +67,36 @@ const Profile = () => {
   // request.resource.contentType.matches('image/.*')
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
+    setFormData({ ...formData, [e.target.id]: e.target.value })
   };
 
-  const handlesubmit = (e) => {
-    e.preventDefault()
+  const handlesubmit = async (e) => {
+    e.preventDefault();
     try {
-      console.log('submit')
+      dispatch(updateUserStart());  
+      const res = await fetch(`/api/users/update/${currentUser._id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(updateUserFailure(data.message));
+        return;
+      }
+      dispatch(updateUserSuccess(data));
+      setUpdateSuccess(true);
     } catch (error) {
-      
+      dispatch(updateUserFailure(error.message));
     }
   };
 
   const handleDeleteuser = async () => {
     try {
       dispatch(deleteUserStart());
-      res = await fetch(`/api/users/delete/${currentUser._id}`, {
+      const res = await fetch(`/api/users/delete/${currentUser._id}`, {
         method: 'DELETE',
       });
       const data = await res.json();
@@ -113,7 +134,7 @@ const Profile = () => {
           accept='image/*' 
         />
         <img 
-          src={FormData.avatar || currentUser.avatar} 
+          src={formData.avatar || currentUser.avatar} 
           alt="profile picture" 
           onClick={() => fileRef.current.click()}
           className="w-24 h-24 rounded-full object-cover cursor-pointer self-center mt-2"

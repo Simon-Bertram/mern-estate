@@ -46,7 +46,14 @@ export const deleteUser = async (req, res, next) => {
   }
 
   try {
+    console.log(currentUser._id);
+    const res = await fetch(`/localhost:3000/api/users/delete/${currentUser._id}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: req.params.id }),
+    });
     await User.findByIdAndDelete(req.params.id);
+    res.clearCookie('access_token');
     res.status(200).json('User has been deleted...');
   } catch (error) {
     next(error);
