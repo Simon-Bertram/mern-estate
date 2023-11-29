@@ -15,6 +15,9 @@ import {
   deleteUserStart,
   deleteUserSuccess,
   deleteUserFailure,
+  logoutUserStart,
+  logoutUserSuccess,
+  logoutUserFailure,
 } from '../redux/user/userSlice.js'
 
 const Profile = () => {
@@ -74,7 +77,7 @@ const Profile = () => {
     e.preventDefault();
     try {
       dispatch(updateUserStart());  
-      const res = await fetch(`/api/users/update/${currentUser._id}`, {
+      const res = await fetch(`http://localhost:3000/api/user/update/${currentUser._id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -96,7 +99,7 @@ const Profile = () => {
   const handleDeleteuser = async () => {
     try {
       dispatch(deleteUserStart());
-      const res = await fetch(`/api/users/delete/${currentUser._id}`, {
+      const res = await fetch(`http://localhost:3000/api/user/delete/${currentUser._id}`, {
         method: 'DELETE',
       });
       const data = await res.json();
@@ -110,11 +113,18 @@ const Profile = () => {
     }
   };
 
-  const handleSignOut = async () => {
+  const handleLogout = async () => {
     try {
-      console.log('signout');
+      dispatch(logoutUserStart());
+      const res = await fetch('http://localhost:3000/api/auth/logout');
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(logoutUserFailure(data.message));
+        return;
+      }
+      dispatch(logoutUserSuccess(data));
     } catch (error) {
-      console.log(error);
+      dispatch(logoutUserFailure(error.message));
     }
   };
 
@@ -198,7 +208,7 @@ const Profile = () => {
         </span>
         <p className='text-green-700 mt-5'>{updateUserSuccess ? 'User is updated successfully!' : ""}</p>
         <span
-          onClick={handleDeleteuser}
+          onClick={handleLogout}
           className='text-red-700 p-3 rounded-lg cursor-pointer uppercase text-center hover:border hover:border-red-700'
         >
             Sign Out

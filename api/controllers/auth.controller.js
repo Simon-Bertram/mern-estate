@@ -2,13 +2,14 @@ import User from '../models/user.model.js';
 import bcryptjs from 'bcryptjs';
 import { errorHandler } from '../utils/error.js';
 import jwt from 'jsonwebtoken';
+import e from 'express';
 
 // @desc    Signup user
 // @route   POST /api/auth/signup
 // @access  Public
 export const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
-  const hashedPassword = bcrypt.hashSync(password, 12);
+  const hashedPassword = bcryptjs.hashSync(password, 12);
   const newUser = new User({ username, email, hashedPassword });
   try {
     await newUser.save();
@@ -99,5 +100,17 @@ export const googleLogin = async (req, res, next) => {
     }
   } catch (error) {
     next(error)
+  }
+};
+
+// @desc    Logout user
+// @route   GET /api/auth/logout
+// @access  Public
+export const logout = (req, res) => {
+  try {
+    res.clearCookie('access_token');
+    res.status(200).json('User has been logged out...');
+  } catch (error) {
+    
   }
 };
